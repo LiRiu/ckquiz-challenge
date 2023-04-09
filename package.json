@@ -10,7 +10,7 @@
     "ethers": "^5.7.2",
     "evergreen-ui": "^7.1.5",
     "keccak256": "^1.0.6",
-    "parcel": "latest",
+    "parcel": "^2.8.3",
     "process": "latest",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
