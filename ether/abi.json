@@ -39,6 +39,62 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_PKx",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_PKy",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "item_id",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount_per_winner",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "total_prize_amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "register",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes",
+        "name": "name",
+        "type": "bytes"
+      },
+      {
+        "internalType": "address",
+        "name": "contract_address",
+        "type": "address"
+      }
+    ],
+    "name": "register_reward",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
     "anonymous": false,
     "inputs": [
       {
@@ -50,24 +106,6 @@
     ],
     "name": "QuizID",
     "type": "event"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_PKx",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_PKy",
-        "type": "uint256"
-      }
-    ],
-    "name": "register",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
   },
   {
     "stateMutability": "nonpayable",
@@ -84,6 +122,59 @@
     "name": "withdraw",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "quiz_id",
+        "type": "uint256"
+      }
+    ],
+    "name": "get_quiz_status",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes",
+        "name": "",
+        "type": "bytes"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "quiz_id",
+        "type": "uint256"
+      }
+    ],
+    "name": "is_win",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -113,6 +204,21 @@
       },
       {
         "internalType": "uint256",
+        "name": "reward_id",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount_per_winner",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "total_prize_amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
         "name": "id",
         "type": "uint256"
       },
@@ -131,19 +237,24 @@
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
       }
     ],
-    "name": "times",
+    "name": "whitelist_rewards",
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "id",
         "type": "uint256"
+      },
+      {
+        "internalType": "bytes",
+        "name": "name",
+        "type": "bytes"
+      },
+      {
+        "internalType": "address",
+        "name": "contract_address",
+        "type": "address"
       }
     ],
     "stateMutability": "view",

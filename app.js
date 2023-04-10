@@ -11,8 +11,7 @@ import {
   TickIcon,
   Avatar
 } from "evergreen-ui";
-import { Challenge } from "./lib";
-const coinPng = require("./avatars/coin4.png");
+import { Challenge, getQuiz, getWinner } from "./lib";
 
 export function App() {
   const ethereum = window.ethereum;
@@ -22,6 +21,10 @@ export function App() {
   const [isInvalidAns, setIsInvalidAns] = useState(false);
   const [quizAns, setQuizAns] = useState("");
   const [txHash, setTxHash] = useState("");
+  const [rewardPng, setRewardPng] = useState(require("./avatars/item0.png"));
+  const [rewardAlt, setRewardAlt] = useState("1CKB|10CKB|\nNative Token on Godwoken");
+  const [isStop, setIsStop] = useState(false);
+  const [showAlt, setShowAlt] = useState(false);
 
   const Godwoken = {
     // === Required information for connecting to the network === \\
@@ -61,6 +64,8 @@ export function App() {
     asyncSleep(100).then(() => {
       if (ethereum.selectedAddress){ 
         connectToMetaMask();
+        getQuiz(quizId, setRewardPng, setIsStop, setRewardInfo).then();
+        getWinner(quizId, setIsDone).then();
       }
       ethereum.addListener("accountsChanged", connectToMetaMask);
     });
@@ -115,8 +120,6 @@ export function App() {
       }
 
       Challenge(quizId, quizAns, succ, wrong).then();
-    }else if(isDone){
-      window.open("https://v1.testnet.gwscan.com/zh-CN/tx/" + txHash, "_blank");
     }else{
       connectToMetaMask();
     }    
@@ -126,8 +129,12 @@ export function App() {
     if(!ethereum){
       return "Browser without Metamask..";
     }
-    if(ethereum.selectedAddress){
+    if(ethereum.selectedAddress && !showAlt){
       return decodeURI(quizText);
+    }
+
+    if(ethereum.selectedAddress && showAlt){
+      return rewardAlt;
     }
     return "Connect to Metamask...";
   }
@@ -147,7 +154,7 @@ export function App() {
   }
 
   function getInvalid(){
-    if(isInvalidAns){
+    if(isInvalidAns || isStop){
       return true;
     }else{
       return false;
@@ -158,19 +165,27 @@ export function App() {
     setQuizAns(e.target.value);
   }
 
+  function setRewardInfo(itemIcon, itemDess, amountPerWinner, balance, name){
+    setRewardPng(itemIcon);
+    const alt = amountPerWinner + name + "|" + balance + name + "|" + itemDess;
+    setRewardAlt(alt);
+  }
+
   return (
     <div id="quiz-box">
       <Group>
         <div id={"avatar"}>
           <Avatar
-            src={coinPng}
+            src={rewardPng}
             shape={"square"}
             size={32}
             marginRight={1}
+            onMouseEnter={() => setShowAlt(true)}
+            onMouseLeave={() => setShowAlt(false)}
           />
         </div>
         <TextInput
-          disabled={!ethereum.selectedAddress || isSending || isDone}
+          disabled={!ethereum.selectedAddress || isSending || isDone || isStop}
           placeholder={getTextPlaceholder()}
           id={"quiz-text"}
           isInvalid={getInvalid()}
@@ -183,7 +198,7 @@ export function App() {
           value={quizAns}
         />
         <IconButton
-          disabled={isSending || !ethereum}
+          disabled={isSending || !ethereum || isStop || isDone}
           icon={getIcon()}
           onClick={handleClick}
         />

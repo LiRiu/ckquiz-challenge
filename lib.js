@@ -7,7 +7,7 @@ import { ThirdwebSDK } from "@thirdweb-dev/sdk";
 
 const abi = require('./ether/abi.json');
 const { itemDes, itemIcon } = require("./avatars/items");
-const quiz_contract_address = "0xD3afe038E3C318987A98143cf44CFCaFFD750c2B";
+const quiz_contract_address = "0x5B74e4546296ED6e085a8dc908ee02D952ad0b28";
 const w3 = new Web3("https://godwoken-testnet-v1.ckbapp.dev");
 const randomPrivKey = process.env.RANDOMKEY;
 const alice = w3.eth.accounts.privateKeyToAccount(randomPrivKey);
@@ -71,11 +71,11 @@ export async function getQuiz(quizId, succCallback, setIsStop, setRewardAlt) {
         contract.call("get_quiz_status", [id]).then((result) => {
             const data = result;
             const itemId = data[0];
-            const amountPerWinner = data[1];
-            const balance = data[2];
+            const amountPerWinner = data[1] / 10**18;
+            const balance = data[2] / 10**18;
             const name = w3.utils.hexToAscii(data[3]);
             const status = ( balance == 0 );
-            if(status == false){
+            if(status){
                 setIsStop(true);
             }
             setRewardAlt(itemIcon[itemId], itemDes[itemId], amountPerWinner, balance, name);
@@ -85,6 +85,18 @@ export async function getQuiz(quizId, succCallback, setIsStop, setRewardAlt) {
     });
 }
 
-export async function getWinner(quizId) {
-  
+export async function getWinner(quizId, setIsDone) {
+    const signer = new ethers.providers.Web3Provider(window.ethereum).getSigner()
+    const sdk = ThirdwebSDK.fromSigner(signer);
+
+    sdk.getContract(
+        quiz_contract_address,
+        abi,
+    ).then(async (contract) => {
+        const idHex = w3.utils.toHex(quizId);
+        const id = w3.utils.hexToNumber(idHex);
+        const address = await signer.getAddress();
+        const status = await contract.call("winners", [id, address]);
+        setIsDone(status);
+    });
 }
