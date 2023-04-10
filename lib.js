@@ -16,7 +16,7 @@ const customCommon = Common.forCustomChain(
         'istanbul',
     );
 const abi = require('./ether/abi.json');
-const quiz_contract_address = "0xb191EEAf679328136E48C645ed2b554b6ae4B8c2";
+const quiz_contract_address = "0x611443f495395d4b4a650C9E6f18f7E9825a3904";
 const w3 = new Web3("https://godwoken-testnet-v1.ckbapp.dev");
 const randomPrivKey = process.env.RANDOMKEY;
 const alice = w3.eth.accounts.privateKeyToAccount(randomPrivKey);
