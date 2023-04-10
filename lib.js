@@ -3,18 +3,8 @@ const EC = require('elliptic').ec;
 const ec = new EC('secp256k1');
 const keccak256 = require('keccak256');
 const Web3 = require("web3");
-const Common = require('ethereumjs-common').default;
 import { ThirdwebSDK } from "@thirdweb-dev/sdk";
 
-const customCommon = Common.forCustomChain(
-        'mainnet',
-        {
-            name: 'godwoken',
-            networkId: 71401,
-            chainId: 71401,
-        },
-        'istanbul',
-    );
 const abi = require('./ether/abi.json');
 const quiz_contract_address = "0x611443f495395d4b4a650C9E6f18f7E9825a3904";
 const w3 = new Web3("https://godwoken-testnet-v1.ckbapp.dev");
