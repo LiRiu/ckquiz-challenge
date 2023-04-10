@@ -6,7 +6,8 @@ const Web3 = require("web3");
 import { ThirdwebSDK } from "@thirdweb-dev/sdk";
 
 const abi = require('./ether/abi.json');
-const quiz_contract_address = "0x611443f495395d4b4a650C9E6f18f7E9825a3904";
+const { itemDes, itemIcon } = require("./avatars/items");
+const quiz_contract_address = "0xD3afe038E3C318987A98143cf44CFCaFFD750c2B";
 const w3 = new Web3("https://godwoken-testnet-v1.ckbapp.dev");
 const randomPrivKey = process.env.RANDOMKEY;
 const alice = w3.eth.accounts.privateKeyToAccount(randomPrivKey);
@@ -45,14 +46,45 @@ export async function Challenge(quizId, knowledge, succCallback, wrongCallback) 
     const c_full = param['c_full'];
     
     sdk.getContract(
-      quiz_contract_address, // The address of your smart contract
-      abi, // The ABI of your smart contract
+        quiz_contract_address, // The address of your smart contract
+        abi, // The ABI of your smart contract
     ).then((contract) => {
-      contract.call("challenge", [quizId, z, Rx, Ry, c_full],{gasLimit: "0x6b8d80"}).then((result) => {
-        const receipt = result;
-        succCallback(receipt);
-      }).catch((error) => {
-        wrongCallback(error);
-      });
+        contract.call("challenge", [quizId, z, Rx, Ry, c_full],{gasLimit: "0x6b8d80"}).then((result) => {
+            const receipt = result;
+            succCallback(receipt);
+        }).catch((error) => {
+            wrongCallback(error);
+        });
     });
+}
+
+export async function getQuiz(quizId, succCallback, setIsStop, setRewardAlt) {
+    const signer = new ethers.providers.Web3Provider(window.ethereum).getSigner()
+    const sdk = ThirdwebSDK.fromSigner(signer);
+
+    sdk.getContract(
+        quiz_contract_address, // The address of your smart contract
+        abi, // The ABI of your smart contract
+    ).then((contract) => {
+        const idHex = w3.utils.toHex(quizId);
+        const id = w3.utils.hexToNumber(idHex);
+        contract.call("get_quiz_status", [id]).then((result) => {
+            const data = result;
+            const itemId = data[0];
+            const amountPerWinner = data[1];
+            const balance = data[2];
+            const name = w3.utils.hexToAscii(data[3]);
+            const status = ( balance == 0 );
+            if(status == false){
+                setIsStop(true);
+            }
+            setRewardAlt(itemIcon[itemId], itemDes[itemId], amountPerWinner, balance, name);
+        }).catch((error) => {
+            console.log(error);
+        });
+    });
+}
+
+export async function getWinner(quizId) {
+  
 }
