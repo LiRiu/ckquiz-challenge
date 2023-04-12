@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { MetaMaskWallet } from "@thirdweb-dev/wallets";
 import './index.css';
 import {
   Group,
@@ -12,6 +11,7 @@ import {
   Avatar
 } from "evergreen-ui";
 import { Challenge, getQuiz, getWinner } from "./lib";
+import { connectToMetaMask, addNewTokenToMetamask } from './ether/wallet';
 
 export function App() {
   const ethereum = window.ethereum;
@@ -23,38 +23,9 @@ export function App() {
   const [txHash, setTxHash] = useState("");
   const [rewardPng, setRewardPng] = useState(require("./avatars/item0.png"));
   const [rewardAlt, setRewardAlt] = useState("1CKB|10CKB|\nNative Token on Godwoken");
+  const [rewardId, setRewardId] = useState(0);
   const [isStop, setIsStop] = useState(false);
   const [showAlt, setShowAlt] = useState(false);
-
-  const Godwoken = {
-    // === Required information for connecting to the network === \\
-    chainId: 71401, // Chain ID of the network
-    // Array of RPC URLs to use
-    rpc: ["https://godwoken-testnet-v1.ckbapp.dev"],
-
-    // === Information for adding the network to your wallet (how it will appear for first time users) === \\
-    // Information about the chains native currency (i.e. the currency that is used to pay for gas)
-    nativeCurrency: {
-      decimals: 18,
-      name: "Godwoken CKB",
-      symbol: "CKB",
-    },
-    shortName: "Godwoken", // Display value shown in the wallet UI
-    slug: "Godwoken", // Display value shown in the wallet UI
-    testnet: true, // Boolean indicating whether the chain is a testnet or mainnet
-    chain: "Godwoken", // Name of the network
-    name: "Godwoken", // Name of the network
-  }
-
-  const wallet = new MetaMaskWallet({
-    chains: [ Godwoken ],
-    dappMetadata: {
-      name: "CKQuiz",
-      url: "https://ckquiz-home.vercel.app/",
-      description: "Challenge for CKB",
-      logoUrl: "https://ckquiz-home.vercel.app/favicon.ico",
-    },
-  });
 
   const url = window.location.search.split("?")[1];
   const quizId = url.split("=")[1].split("&")[0];
@@ -63,40 +34,14 @@ export function App() {
   useEffect(() => {
     asyncSleep(100).then(() => {
       if (ethereum.selectedAddress){ 
-        connectToMetaMask();
+        connectToMetaMask(()=>{
+          setEthAddr(ethereum.selectedAddress);
+        });
         getQuiz(quizId, setRewardPng, setIsStop, setRewardInfo).then();
         getWinner(quizId, setIsDone).then();
       }
-      ethereum.addListener("accountsChanged", connectToMetaMask);
     });
   }, []);
-
-  function connectToMetaMask() {
-    wallet.connect().then(()=>{
-      wallet.switchChain(71401).then(()=>{
-        setEthAddr(ethereum.selectedAddress);
-      }).catch(()=>{
-        addGodwokenToMetaMask();
-      });
-    })
-  }
-
-  function addGodwokenToMetaMask() {
-    window.ethereum.request({
-      method: "wallet_addEthereumChain",
-      params: [{
-        chainId: "0x116e9",
-        rpcUrls: ["https://godwoken-testnet-v1.ckbapp.dev"],
-        chainName: "Godwoken",
-        nativeCurrency: {
-          name: "CKB",
-          symbol: "CKB",
-          decimals: 18
-        },
-        blockExplorerUrls: ["https://v1.testnet.gwscan.com/"]
-      }]
-    });
-  }
 
   function asyncSleep(ms){
     return new Promise((resolve) => setTimeout(resolve, ms));
@@ -111,6 +56,7 @@ export function App() {
         setIsSending(false);
         setTxHash(e.receipt.transactionHash);
         setIsInvalidAns(false);
+        addNewTokenToMetamask(rewardId);
       }
 
       function wrong(e){
@@ -121,7 +67,9 @@ export function App() {
 
       Challenge(quizId, quizAns, succ, wrong).then();
     }else{
-      connectToMetaMask();
+      connectToMetaMask(()=>{
+          setEthAddr(ethereum.selectedAddress);
+        });
     }    
   }
 
@@ -165,7 +113,8 @@ export function App() {
     setQuizAns(e.target.value);
   }
 
-  function setRewardInfo(itemIcon, itemDess, amountPerWinner, balance, name){
+  function setRewardInfo(itemId, itemIcon, itemDess, amountPerWinner, balance, name){
+    setRewardId(itemId);
     setRewardPng(itemIcon);
     const alt = amountPerWinner + name + "|" + balance + name + "|" + itemDess;
     setRewardAlt(alt);

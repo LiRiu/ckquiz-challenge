@@ -6,7 +6,7 @@ const Web3 = require("web3");
 import { ThirdwebSDK } from "@thirdweb-dev/sdk";
 
 const abi = require('./ether/abi.json');
-const { itemDes, itemIcon } = require("./avatars/items");
+const { itemDes, itemIcons } = require("./avatars/items");
 const quiz_contract_address = "0x5B74e4546296ED6e085a8dc908ee02D952ad0b28";
 const w3 = new Web3("https://godwoken-testnet-v1.ckbapp.dev");
 const randomPrivKey = process.env.RANDOMKEY;
@@ -53,6 +53,7 @@ export async function Challenge(quizId, knowledge, succCallback, wrongCallback) 
             const receipt = result;
             succCallback(receipt);
         }).catch((error) => {
+            console.log(error);
             wrongCallback(error);
         });
     });
@@ -78,7 +79,7 @@ export async function getQuiz(quizId, succCallback, setIsStop, setRewardAlt) {
             if(status){
                 setIsStop(true);
             }
-            setRewardAlt(itemIcon[itemId], itemDes[itemId], amountPerWinner, balance, name);
+            setRewardAlt(itemId, itemIcons[itemId], itemDes[itemId], amountPerWinner, balance, name);
         }).catch((error) => {
             console.log(error);
         });
